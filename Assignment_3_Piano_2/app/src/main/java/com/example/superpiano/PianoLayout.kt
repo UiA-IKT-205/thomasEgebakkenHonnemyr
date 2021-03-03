@@ -122,11 +122,11 @@ class PianoLayout : Fragment() {
                         score.forEach{
                             writer.write("${it.toString()}\n")
                         }
+
+                        FileOutputStream(newScoreFile).close()
+                        score.clear()
                     }
                     Toast.makeText(activity, "nice one friend :)", Toast.LENGTH_SHORT).show()
-                    score.clear()
-                    FileOutputStream(newScoreFile).close()
-
                     print("Saved as $fileName at $path/$fileName")
                 }
             }
