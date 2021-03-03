@@ -66,7 +66,7 @@ class PianoLayout : Fragment() {
                 var fullTonetime:Long = 0
                 fullTonetime = endPlay - startPlay
                 fullToneTotalTime = fullTonetime.toDouble() / 1000000000
-                val note = Note(it, startPlay, fullToneTotalTime)
+                val note = Note(it, fullToneStartTime, fullToneTotalTime)
                 score.add(note)
                 println("Piano key up $note. Start $fullToneStartTime. Duration $fullToneTotalTime.")
             }
@@ -94,7 +94,7 @@ class PianoLayout : Fragment() {
                 halfToneTime = endPlay - startPlay
                 halfToneTotalTime = halfToneTime.toDouble() / 1000000000
 
-                val note = Note(it, startPlay, halfToneTotalTime)
+                val note = Note(it, halfToneStartTime, halfToneTotalTime)
                 score.add(note)
                 println("Piano key up $note. Start $halfToneStartTime. Duration $halfToneTotalTime")
             }
