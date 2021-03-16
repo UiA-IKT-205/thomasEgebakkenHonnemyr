@@ -1,5 +1,6 @@
 package com.example.superpiano
 
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -8,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.core.net.toUri
 import com.example.superpiano.data.Note
 import com.example.superpiano.databinding.FragmentPianoBinding
 import kotlinx.android.synthetic.main.fragment_full_tone_piano_key.view.*
@@ -20,6 +22,8 @@ import java.time.format.DateTimeFormatter
 
 
 class PianoLayout : Fragment() {
+
+    var onSave:((file:Uri) -> Unit)? = null
 
     private var _binding:FragmentPianoBinding? = null
     private val binding get() = _binding!!
@@ -107,32 +111,31 @@ class PianoLayout : Fragment() {
         view.saveScoreBt.setOnClickListener{
 
             var fileName = view.fileNameTextEdit.text.toString()
-            val path = this.activity?.getExternalFilesDir(null)
-            val newScoreFile = File(path, fileName)
+            if (score.count() > 0 && fileName.isNotEmpty()){
+                fileName = "$fileName.music"
 
-            when {
-                score.count() == 0 -> Toast.makeText(activity, "Cant save when there is nothing to save m8", Toast.LENGTH_SHORT).show()
-                fileName.isEmpty() -> Toast.makeText(activity, "Need to have a filename first m8", Toast.LENGTH_SHORT).show()
-                path == null -> Toast.makeText(activity, "Path doesnt exist m8", Toast.LENGTH_SHORT).show()
-                newScoreFile.exists() -> Toast.makeText(activity, "A score with that name already exists m8", Toast.LENGTH_SHORT).show()
-
-                else -> {
-                    fileName = "$fileName.music"
-                    FileOutputStream(newScoreFile, true).bufferedWriter().use { writer ->
-                        score.forEach{
-                            writer.write("${it.toString()}\n")
-                        }
-
-                        FileOutputStream(newScoreFile).close()
-                        score.clear()
-                    }
-                    Toast.makeText(activity, "nice one friend :)", Toast.LENGTH_SHORT).show()
-                    print("Saved as $fileName at $path/$fileName")
-                }
+                var content:String = score.map{ it.toString()}.reduce { acc, s -> acc + s + "\n"}
+                saveFile(fileName, content)
             }
         }
 
         return view
+    }
+
+    private fun saveFile(fileName:String, content:String){
+        val path = this.activity?.getExternalFilesDir(null)
+        if (path != null){
+            val file = File(path, fileName)
+            FileOutputStream(file, true).bufferedWriter().use { writer ->
+                writer.write(content) }
+
+            this.onSave?.invoke(file.toUri())
+
+        } else {
+            /// Warn user?
+        }
+
+
     }
 
 }
